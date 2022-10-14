@@ -38,3 +38,39 @@ module BCDtoXS3(output [3:0]X,input [3:0]B);
   or g3(X[3],M[7],M[6],M[5],M[9],M[8]);
    // or g5(X[1],M[0],M[3],M[4],M[7],M[8]);
 endmodule
+
+
+
+// Code your testbench here
+// or browse Examples
+// Code your testbench here
+// or browse Examples
+module tb_BCDtoXS3;
+  reg [3:0]B;
+  wire [3:0]X;
+  //decoder4to16df DUT(y,A);
+  BCDtoXS3 DUT(X,B);
+  initial begin
+    //el=1'b0;
+//    el=1'b1;
+      B=4'b0000;
+    #5 B=4'b0001;
+    #5 B=4'b0010;
+    #5 B=4'b0011;
+    #5 B=4'b0100;
+    #5 B=4'b0101;
+    #5 B=4'b0110;
+    #5 B=4'b0111;
+    #5 B=4'b1000;
+    #5 B=4'b1001;
+    #5 B=4'b1010;
+    #5 B=4'b1011;
+    #5 B=4'b1100;
+    #5 B=4'b1101;
+    #5 B=4'b1110;
+    #5 B=4'b1111;
+  end
+  initial begin
+    $monitor($time," BINARY  is %b and converted as XS-3  %b",B,X);
+  end
+endmodule
