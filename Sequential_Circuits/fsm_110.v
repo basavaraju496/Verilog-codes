@@ -1,39 +1,38 @@
-module seq110_moore (input clk,reset,seq_in,output detected_out);
+module seq110_moore (input clk_in,reset_in,seq_in,output detected_out);
 parameter IDLE =4'B0001 , // using one hot coding only one bit is high
  GOT1 = 4'B0010 ,
  GOT11 = 4'B0100 ,
  GOT110=4'B1000;
 
-reg[3:0] present,next; // state handling registers
+reg[3:0] present_state,next_state; // state handling registers
 
-// present state logic
-    always @(posedge clk)
+// present_state state logic
+    always @(posedge clk_in)
       begin
-        if(reset==0)
+        if(reset_in==0)
         begin
-            present<=IDLE;
+            present_state<=IDLE;
         end
         else
         begin
-            present<=next;
+            present_state<=next_state;
         end
     end
-    // next state logic
-    always @(present,seq_in)
+    // next_state state logic
+    always @(present_state,seq_in)
       begin
-        next=present;
-        case (present)
-            IDLE:begin next=seq_in?GOT1:IDLE; end
-            GOT1:begin next=seq_in?GOT11:GOT1; end
-            GOT11:begin next=(seq_in==0)?GOT110:GOT11; end
-            GOT110:begin next=  seq_in?GOT1:IDLE; end
-          default: begin next=IDLE; end
+        next_state=present_state;
+        case (present_state)
+            IDLE:begin next_state=seq_in?GOT1:IDLE; end
+            GOT1:begin next_state=seq_in?GOT11:GOT1; end
+            GOT11:begin next_state=(seq_in==0)?GOT110:GOT11; end
+            GOT110:begin next_state=  seq_in?GOT1:IDLE; end
+          default: begin next_state=IDLE; end
         endcase
     end
     // output logic
-  assign detected_out=(present==GOT110)?1'b1:1'b0;
+  assign detected_out=(present_state==GOT110)?1'b1:1'b0;
 endmodule
-
 
 
 TESTBENCH
