@@ -1,0 +1,44 @@
+	function [3:0]binarytogray;                                    //binary to gray block 
+			
+	input [3:0]B;
+	begin
+	binarytogray={B[3],B[3]^B[2],B[2]^B[1],B[1]^B[0]};
+	end
+	endfunction
+			function [4:0]binarytoxs3;                                    //binary to xs 3 block 
+			begin
+			input [3:0]B;
+						wire [4:0]tmp;
+
+						
+
+			assign tmp=binarytobcd(B);
+			binarytoxs3=tmp+3'b011;
+			end
+			endfunction
+	function [4:0]binarytoxs5;                                    //binary to xs 5 block 
+	begin		
+	input [3:0]B;
+	wire [4:0]tmp;
+	
+	assign tmp=binarytobcd(bin);
+	binarytoxs5=tmp+3'b101;
+	end
+	endfunction
+			function [3:0]binarytobcd;                                    //binary to bcd block 
+			
+			input [3:0]B;
+			begin
+			if(B<10) 
+			begin 
+			binarytobcd=B;
+			end
+			else
+			begin
+			binarytobcd=B+3'b110;
+			end
+			end
+			endfunction
+
+endmodule
+

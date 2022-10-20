@@ -1,0 +1,8 @@
+module jdoodle;
+reg [7:0]b;
+    initial begin
+    b=8'b10101010;
+        $display ("b sliced =%b",b[7:3]);
+        $finish;
+    end
+endmodule
