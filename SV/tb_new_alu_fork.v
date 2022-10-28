@@ -1,6 +1,6 @@
 `include"alu.v"
 
-module tb_new_alu;
+module tb_new_alu_fork;
 
 reg clk=0;
 
@@ -30,36 +30,15 @@ top_alu dut_instance(opcode_in_tb,init_tb_in,A_in_tb,B_in_tb,design_alu_out,ex_s
 // ----------------- clock generation------------------//
 always #5 clk=~clk;
 
-initial begin
-fork
-		task_compare;
-		task_checker;
-		task_stimulus;
-
-
-join
-
-
-end
-
-
 // --------stimulus input ------------------//
 
-//always@(negedge clk) 
-task task_stimulus;
-begin
-forever@(negedge clk)
+always@(negedge clk) 
 begin
 		opcode_in_tb=$random;
 		A_in_tb=$random;
 		B_in_tb=$random;
 
 end
-
-
-end
-endtask
-
 /*
 initial begin
 A_in_tb=10;
@@ -83,13 +62,8 @@ ex_sel_in_tb=0;
 end
 // --------------checker op getting ----------------------//
 
-//always@(posedge clk)
-task task_checker;
+always@(posedge clk)
 begin
-forever@(posedge clk)
-
-
-		begin
 	if(init_tb_in==0)
 		begin
 		checker_alu_out=16'bz;
@@ -186,20 +160,13 @@ forever@(posedge clk)
 
 end
 
-end
-endtask
 
 
 
 // -------------comparing DUT vs TB --------------------// 
 
-//always@(negedge clk )
-task task_compare;
+always@(negedge clk )
 begin
-forever@(negedge clk)
-
-
-		begin
 		if(design_alu_out===checker_alu_out)
 		begin
 			$display($time,"opcode=%0d A_in_tb = %b (%0d) B_in_tb=%b (%0d) design_ALU_out=%b (%0d) ::: check_ALU_out=%b (%0d)::: both are equal ",opcode_in_tb,A_in_tb,A_in_tb,B_in_tb,B_in_tb,design_alu_out,design_alu_out,checker_alu_out,checker_alu_out);
@@ -212,13 +179,12 @@ forever@(negedge clk)
 
 
 end
-end
-endtask
 
 
 //----------------- finishing simulation --------------//
 
-initial #200 $finish;
+initial #2000 $finish;
 
 endmodule
+
 
