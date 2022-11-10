@@ -19,7 +19,6 @@ up_down_counter255_tester DUT(wire_din,clk,ncs,nrd,nwr,start,reset,a0,a1,count,e
 initial
 	 begin
  		clk = 1'b0;
-	    	//	$dumpfile("dump.vcd"); $dumpvars;    // for EDA
 		end
 
 initial
@@ -36,6 +35,8 @@ task main;
 		 endsimulation;
  	join
 endtask
+
+
 //====================clock generation====================//
 task clock_gen;
  		begin
@@ -49,19 +50,35 @@ begin
 
 //@(negedge clk) ncs=1; reset=1;  nwr=0; {a0,a1}=1; nrd=
 
-ncs=0; reset=1; nwr=0;   nrd=1;
-@(negedge clk) a0=0; a1=0; reg_din=10; // plr
-@(negedge clk) a0=1; a1=0; reg_din=15;    // ulr
-@(negedge clk) a0=0; a1=1; reg_din=5;    // llr
+ncs=0; reset=0; nwr=0;   nrd=1;
+@(negedge clk) a0=0; a1=0; reset=1; reg_din=10; // plr
+@(negedge clk) a0=1; a1=0; reg_din=10;    // ulr
+@(negedge clk) a0=0; a1=1; reg_din=10;    // llr
 @(negedge clk) a0=1; a1=1; reg_din=2;    //ccr    data loaded   reset data after writing
 
 
 $display(" start pulse applied ");
-@(negedge clk) nwr=1;
-@(negedge clk)  start=1;                // start pulse given at negedge of clock
+@(negedge clk)  start=1;   nwr=1; nrd=0;              // start pulse given at negedge of clock
 @(negedge clk )  start=0;                  // start pulse duration is one clock cycle
 #10
-@(negedge clk)   ncs=1;
+@(negedge clk) nwr=1; a0=0; a1=0;  nrd=0; 
+
+@(negedge clk)  start=1;   nwr=1; nrd=0;              // start pulse given at negedge of clock
+
+@(negedge clk )  start=0;                  // start pulse duration is one clock cycle
+
+#10
+a0=1; a1=0;
+
+#60 
+@(negedge clk) reset=0;    //ccr    data loaded   reset data after writing
+
+@(negedge clk) reset=1; nwr=0; a0=1; a1=1; reg_din=2;    //ccr    data loaded   reset data after writing
+
+$display(" start pulse applied ");
+@(negedge clk)  start=1;   nwr=1; nrd=0;              // start pulse given at negedge of clock
+@(negedge clk )  start=0;                  // start pulse duration is one clock cycle
+
 end
     endtask
 
@@ -493,3 +510,4 @@ task endsimulation;
 endtask
     
 endmodule
+
