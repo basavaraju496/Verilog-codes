@@ -1,15 +1,11 @@
-// Code your design here
-module up_down_counter255_tester (inout [7:0]Din,input clk_in,ncs_in,nrd_in,nwr_in,start_in,reset_in,A0,A1 ,output reg [7:0]count_out,output reg err_out,ec_out,dir_out);
+
+module up_down_counter255_tester (inout [7:0]Din,input clk,ncs,nrd,nwr,start_in,reset,A0,A1 ,output reg [7:0]cout,output reg err,ec,dir);
 reg start_flag; // start flag is raised whenever start pulse comes 
-reg [7:0]reg_out;  // storing din out value in reg
-// for storing input 
+reg [7:0]reg_out;  // storing din out value in reg for storing input
+reg [7:0]temporary_CCR;  // to store ccr
+integer pulse_counter=0; // to count pulses in start
 
-//reg write_flag;
-reg [7:0]temp2;
-
-integer pulse_counter=0;
-
-assign Din=(ncs_in==0 && nrd_in==0 && nwr_in==1)? reg_out:8'bz;  // whenever value in din out changes the it iis assigned to din 
+assign Din=(ncs==0 && nrd==0 && nwr==1)? reg_out:8'bz;  // whenever value in din out changes the it iis assigned to din 
 //  inout port must be wire so we are unable to use in procedural blocks(while
 //  reading) taken a register as reg_out values will be taken to it{while
 //  reading}| and
@@ -29,23 +25,23 @@ reg up_flag,down_flag,preload_flag;
 
 reg plr_flag,ulr_flag,llr_flag,ccr_flag;  // flags to prevent overwrite the data into registers while counting
 
-always@(posedge clk_in)
-		begin //{
-			if(ncs_in==0)
-					begin //{ chip select on
-						if(reset_in==0)
+always@(posedge clk)
+		begin //{  1
+			if(ncs==0)  
+					begin //{ chip select on 2
+						if(reset==0)
 										begin //{   // reset==0
 											PLR=1;
 											LLR=0;
 											CCR=0;
 											ULR=8'd255;  
-											ec_out=1'bz;
-											err_out=1'bz;
-                                            dir_out=1'bz;      
+											ec=1'b0;  // initiallly zero
+											err=1'bz;
+                                            dir=1'bz;      
                                             start_flag=1'bz; 
 											pulse_counter=0;
-                                            temp2=8'bz;
-											count_out=8'bz;
+                                            temporary_CCR=8'bz;
+											cout=8'bz;
 											plr_flag=0;
 											llr_flag=0;
 											ulr_flag=0;
@@ -53,18 +49,17 @@ always@(posedge clk_in)
 
 						   				 end //} reset==0 end
 						else  // reset ==1 case
-											begin //{
-																	if(nwr_in==0)
-																		begin //{ // writing start
+											begin //{ 3
+																	if(nwr==0)
+																		begin //{ // writing start 4
 																		case({A1,A0})
-
                                   					     				2'b00: begin 
-																		if(plr_flag==0)
+																					if(plr_flag==0)
 																							begin
-																								PLR=Din;
+																								PLR=Din;  // PLR loaded with input data
 																								plr_flag=1; 
 																							end
-																		else
+																						else
 																							begin
 																							PLR=PLR;
 																							plr_flag=plr_flag;
@@ -72,11 +67,12 @@ always@(posedge clk_in)
 																		end
 
 					                                       				2'b01: begin
-																		if(ulr_flag==0)
+																				if(ulr_flag==0)
 																							begin
-																							ULR=Din;	ulr_flag=1;	
+																							ULR=Din;	// ULR loaded with input data
+																							ulr_flag=1;	
 																							end
-																		else
+																				else
 																							begin
 																							ULR=ULR;
 																							ulr_flag=ulr_flag;
@@ -88,7 +84,8 @@ always@(posedge clk_in)
                     							                   		2'b10: begin
 																		if(llr_flag==0)
 																							begin
-																							LLR=Din;  llr_flag=1;   
+																							LLR=Din; // LLR loaded with input data
+																							llr_flag=1;   
 																							end
 																		else
 																							begin
@@ -97,9 +94,10 @@ always@(posedge clk_in)
 																							end
 																		end
                     		                   							2'b11: begin
-																		if(ccr_flag==0)
+																				if(ccr_flag==0)
 																								begin
-																								CCR=Din; ccr_flag=1; 
+																								CCR=Din; // CCR loaded with input data
+																								ccr_flag=1; 
 																								end
 																								else
 																								begin
@@ -109,22 +107,21 @@ always@(posedge clk_in)
 									         													end
 																								end
 																		 default : begin 
-																		 				PLR=PLR; LLR=LLR; CCR=CCR; ULR=ULR;  plr_flag=plr_flag; llr_flag=llr_flag; ccr_flag=ccr_flag; ulr_flag=ulr_flag;  end
+																		 				 PLR=PLR;
+																						 LLR=LLR;
+																						 CCR=CCR; 
+																						 ULR=ULR;  
+																						 plr_flag=plr_flag; 
+																						 llr_flag=llr_flag; 
+																						 ccr_flag=ccr_flag; 
+																						 ulr_flag=ulr_flag;
+																				    end
 																		 
 																		endcase
 																	end //} writing end
-																	else
-																	begin
 
-                   														 PLR=PLR;
-                   														 LLR=LLR;
-                   														 CCR=CCR;
-                   														 ULR=ULR;
-																	end
-																	end//}
-		
-
-															else if(nrd_in==0)
+                                            
+															else if(nrd==0)  // reading can be happened at any time
 																	begin//{
 																		case({A1,A0})
         		                               							2'b00: begin reg_out=PLR;end
@@ -133,85 +130,64 @@ always@(posedge clk_in)
                         		               							2'b11: begin reg_out=CCR;end
 																		default : begin   		reg_out=8'bz;   		 end
 																		endcase
-																	end//}
-															else
+                                                                    end//} read end
+															else   
 																begin  //{
-                                                                    					count_out=count_out;
+                                                                    					
+					
+                														    PLR=PLR;
+                														    LLR=LLR;
+                														    CCR=CCR;
+                														    ULR=ULR;
+                														    start_flag=start_flag;
+                														    temporary_CCR=temporary_CCR;
+                														    err=err;
+                														    dir=dir;
+                														    ec=ec;
+                														   	cout=cout;																					
     
-												  				  end//} */
+												  				  end//} 
 											
-															end//}
+                                            end//}  reset 1 end
 															
 				end//} ncs =0 end
 				else
 					begin//{ ncs==1
-					count_out=count_out;
+					
                     PLR=PLR;
                     LLR=LLR;
                     CCR=CCR;
                     ULR=ULR;
                     start_flag=start_flag;
-                    temp2=temp2;
-                    err_out=err_out;
-                    dir_out=dir_out;
-                    ec_out=ec_out;
-                    count_out=count_out;
-					end//}
-	   end//} always end
-
+                    temporary_CCR=temporary_CCR;
+                    err=err;
+                    dir=dir;
+                    ec=ec;
+                    cout=cout;
+                    end//}    ncs 1 end 
+	   
+        end//}  always end
 
 
 //===========================================ERROR SIGNAL GENERATION========================//
-always@(posedge clk_in)
+always@(posedge clk)
 		begin//{
 		if(PLR<LLR || PLR>ULR)
 			begin//{
-				err_out=1;
+				err=1;
 			end//}
 			else
 				begin//{
-				err_out=0;
+				err=0;
                  
 				end//}
 		end//}
 	
 			
-//====================== START FLAG ==============================//
-always@(negedge start_in)
+//====================== START FLAG @==============================//
+always@(posedge clk)
 		begin//{
-		if(pulse_counter==1 && ncs_in==0 && reset_in==1 &&  err_out==0 ) // starts only when one pulse is obtained and ncs=0 reset =1 ,.....
-		begin//{
-				if(CCR==0)         // storing CCR values to temporary register
-					begin				
-					ec_out=1'bz; 
-					pulse_counter=0;
-					start_flag=0;
-					end
-					else if(CCR>0)
-					begin
-					temp2=CCR;
-					ec_out=0; 
-					start_flag=1;
-					pulse_counter=pulse_counter;
-				up_flag=1;         // default direction is up counting
-				count_out=PLR-1;   // loaded with plr-1 but show count from PLR
-					end
-                    else
-                    begin
-                        ec_out=1'bz;
-                        pulse_counter=0;
-                        start_flag=0;
-                    end
-		end//}
-		else 
-						begin//{    
-							start_flag=start_flag;  // pulse count>1 || ncs=1 || reset=0 || nwr=0 || nrd=0 || err=1 endcycle=0    
-						end//}
-
-		end//}
-always@(posedge clk_in)
-		begin//{
-		 if(start_in==1 && ncs_in==0 && reset_in==1 &&  err_out==0  )
+		 if(start_in==1 && ncs==0 && reset==1 &&  err==0  )
 				begin//{
 					pulse_counter=pulse_counter+1;   // counting start pulses
 				end//}
@@ -221,52 +197,87 @@ always@(posedge clk_in)
 	
 					end//}
 		end//}
-///==================================================================//
-/* always@(negedge clk_in)
+always@(negedge start_in)
 		begin//{
-				if(temp2==0 && ncs_in==0 && nwr_in!==0 && reset_in==1 && nrd_in!==0 && err_out==0 && ec_out==0)
+		if(pulse_counter==1 && ncs==0 && reset==1 &&  err==0 ) // starts only when one pulse is obtained and ncs=0 reset =1 ,.....
+		begin//{
+				if(CCR==0)         // storing CCR values to temporary register
+					begin				
+					ec=1'b1; 
+					pulse_counter=0;
+					start_flag=0;
+					end
+					else if(CCR>0)
 					begin
-					//	ec_out=1;
+					temporary_CCR=CCR; ec=0;
+					 
+					start_flag=1;
+					pulse_counter=pulse_counter;
+					up_flag=1;         
+                      cout=(PLR>1)?(PLR-1):0;   // loaded with plr-1 but show count from PLR
+					end
+                    else
+                    begin
+                        ec=1'bz;
+                        pulse_counter=0;
+                        start_flag=0;
+                    end
+		end//}
+		else 
+						begin//{    
+                          pulse_counter=0;
+							start_flag=start_flag;  // pulse count>1 || ncs=1 || reset=0 || nwr=0 || nrd=0 || err=1 endcycle=0    
+						end//}
+
+		end//}
+
+
+
+///========================= COMMENT TEST =========================================//
+/* always@(negedge clk)
+		begin//{
+				if(temporary_CCR==0 && ncs==0 && nwr!==0 && reset==1 && nrd!==0 && err==0 && ec==0)
+					begin
+					//	ec=1;
 						start_flag=0;
-						count_out=count_out;
-						temp2=8'bz;
+						cout=cout;
+						temporary_CCR=8'bz;
 				end
 				else
 					begin
-						ec_out=0;
+						ec=0;
 					end
 		end//}*/
 
 // ===========================COUNTER BLOCK====================//
-//----------------UP COUNTING 1------------------------------//
-always @(posedge clk_in )
+//----------------UP COUNTING UPTO ULR @ ------------------------------//
+always @(posedge clk )
 		begin//{
-			if(start_flag==1 && ncs_in==0  && reset_in==1 &&  err_out==0 && ec_out==0)
+			if(start_flag==1 && ncs==0  && reset==1 &&  err==0 && ec==0)
 				begin//{
 					if(up_flag==1)
 							begin//{
-								if(count_out<ULR) 
+								if(cout<ULR) 
 									begin//{
-										count_out=count_out+1; dir_out=1;   // dir=1 when upcounting
+										cout=cout+1; dir=1;   // dir=1 when upcounting
 									end//}	
 								else // count ==ulr
 									begin//{
-										if(count_out==PLR && count_out==ULR && count_out==LLR )
+										if(cout==PLR && cout==ULR && cout==LLR )
 											begin//{
-											 temp2=temp2-1;
-											if(temp2==1) 
+											 temporary_CCR=temporary_CCR-1;   // IF CCR=1 ?? CHECK ALL EQUAL CASE
+											if(temporary_CCR==0) 
                                                 begin
-											        ec_out=1;
+											        ec=1;
 													pulse_counter=0;
-
-//{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;
-											start_flag=0;
-											count_out=count_out;
-											temp2=8'bz;
+													start_flag=0;
+													cout=cout;
+													temporary_CCR=8'bz;
                                             	end
                                                 else
                                                 begin
-                                                    ec_out=ec_out;
+                                                    ec=ec;
+													cout=cout;
                                                 end
 											end//}
 											else
@@ -277,35 +288,33 @@ always @(posedge clk_in )
 end//}
 					else
 							begin//{
-									count_out=count_out; dir_out=dir_out;
+									cout=cout; dir=dir;
 
 								end//}
 end//}
 else
 begin
-		count_out=count_out; dir_out=dir_out;
+		cout=cout; dir=dir;
 end
 end//}
 
-//============================DOWN COUNTING================================//
-always@(posedge clk_in)		
+//============================DOWN COUNTING UPTO LLR ================================//
+always@(posedge clk)		
 		begin//{
-if(start_flag==1 && ncs_in==0 &&  reset_in==1 &&  err_out==0 && ec_out==0)		begin//{
+if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 				 	 if(down_flag==1)
 							begin//{
-								 if(count_out>LLR)
+								 if(cout>LLR)
 								begin//{
-									count_out=count_out-1; dir_out=0;// dir=0 when downcounting
-
-									if((count_out==PLR && count_out==LLR) && temp2==1)	
+									cout=cout-1; dir=0;// dir=0 when downcounting
+									if((cout==PLR && cout==LLR) && temporary_CCR==1)	// CHECK PLR==LLR
 									    begin
-										    ec_out=1;
-//{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;
+										    ec=1;
 											pulse_counter=0;
-
-						start_flag=0;
-						count_out=count_out;
-						temp2=8'bz;
+											start_flag=0;
+											down_flag=0;
+										//	cout=cout;
+											temporary_CCR=8'bz;
 										end
 
 									end//}	
@@ -321,56 +330,46 @@ if(start_flag==1 && ncs_in==0 &&  reset_in==1 &&  err_out==0 && ec_out==0)		begi
 
 					else
 							begin//{
-									count_out=count_out; dir_out=dir_out;
+									cout=cout; dir=dir;
 
 							end//}
 							end//}
 
 else
 begin
-		count_out=count_out; dir_out=dir_out;
+		cout=cout; dir=dir;
 end
 
 end//}
 
-//==============================END CYCLE============================//
-	always@(posedge clk_in)
-	begin	
-		if(ec_out==1) begin
 
-{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;
-				ec_out<=0; end
-				else begin
-				ec_out<=ec_out;
-                end
-end
 // ===============================UP COUNTING UPTO PLR===================//
-always@(posedge clk_in)
+always@(posedge clk)
 begin//{
-if(start_flag==1 && ncs_in==0 &&  reset_in==1 &&  err_out==0 && ec_out==0)		begin//{
+if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 					 if(preload_flag==1)
 							begin//{
-								if(count_out<PLR)
+								if(cout<PLR)
 									begin//{
-										count_out=count_out+1; dir_out=1; // dir=1 when upcounting
-										if(count_out==PLR && temp2==1)
+										cout=cout+1; dir=1; // dir=1 when upcounting
+										if(cout==PLR && temporary_CCR==1)
 											begin
-												ec_out=1;
+												ec=1;
 												pulse_counter=0;
-//{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;
 
-						start_flag=0;
-						count_out=count_out;
-						temp2=8'bz;
+
+													start_flag=0;
+												//	cout=cout;
+													temporary_CCR=8'bz;
 											end
                                             else
                                             begin
-                                                ec_out=ec_out;
+                                                ec=ec;
                                             end
 									end//}
 									else 
 									begin//{	
-										temp2=temp2-1; up_flag=1; preload_flag=0;
+										temporary_CCR=temporary_CCR-1; up_flag=1; preload_flag=0;
 										
 										
 									end//}
@@ -378,27 +377,35 @@ if(start_flag==1 && ncs_in==0 &&  reset_in==1 &&  err_out==0 && ec_out==0)		begi
 								end//}		
 					else
 							begin//{
-									count_out=count_out; dir_out=dir_out;
+									cout=cout; dir=dir;
 
 							end//}
 							end//}
 
 					else
 						begin
-						count_out=count_out; dir_out=dir_out;
+						cout=cout; dir=dir;
 						end
 
 					
 					
 		end//}
+//==============================END CYCLE @============================//
+	always@(negedge clk)
+	begin	
+		if(ec==1) begin
+					{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;  // WE CAN WRITE NEW DATA AFTER ENDCYCLE 
+					ec<=0; 
+					end
+				else begin
+					ec<=ec;
+                end
+end
 ///////////======================== THE END  =======================//
 
-/*always@(*)
-		begin
-				if
-		end
-*/
+
 
 
     endmodule
+
 
