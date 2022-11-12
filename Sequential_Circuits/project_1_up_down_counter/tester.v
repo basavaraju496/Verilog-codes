@@ -209,9 +209,8 @@ always@(negedge start_in)
 					end
 					else if(CCR>0)
 					begin
-					temporary_CCR=CCR; ec=0;
-					 
-					start_flag=1;
+					temporary_CCR=CCR; ec=0; 
+										start_flag=1;
 					pulse_counter=pulse_counter;
 					up_flag=1;         
                       cout=(PLR>1)?(PLR-1):0;   // loaded with plr-1 but show count from PLR

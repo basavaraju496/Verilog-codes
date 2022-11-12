@@ -1,5 +1,5 @@
 `include"tester.v"
-`define ENDTIME 100
+`define ENDTIME 150
 
 module tb_checker;
 //========================DUT and checker  inputs and DUT outputs========//
@@ -149,8 +149,15 @@ task task_checker;
 //	 task_new;
 //	 task_new1;
 //	 task_new2;
-task_caller;	 
-task_flag_modifier;
+//task_caller;	 
+//task_flag_modifier;
+//
+//
+		task_new_counter;
+		task_direction;
+		task_ec1;
+
+
 	join
 		end//}
 		endtask
@@ -314,8 +321,11 @@ task task_ec;
 begin//{
 forever@(negedge clk)
 begin//{
-ec_checker_out=(ec_checker_out==1)?0:ec_checker_out;
-{plr_flag,ulr_flag,llr_flag,ccr_flag}=ec_checker_out? 0 : {plr_flag,ulr_flag,llr_flag,ccr_flag};
+if(ec_checker_out==1) begin
+temp2=(ec_checker_out)?0:temp2;
+start_in_flag=0;
+pulse_counter=0;
+end
 
 end//}
 end//}
@@ -327,9 +337,6 @@ task task_start1;
 begin//{
 forever@(posedge clk)
 begin
-//	pulse_counter=(start_in==1 && ncs_in==0 && reset_in==1 &&  err_checker_out==0) ? (pulse_counter+1):pulse_counter;
-//	$display("pulse =%0d ",pulse_counter);
-//	pulse_counter=(0)? (pulse_counter+1):100; //pulse_counter;
 
 case({start_in,ncs_in,reset_in,err_checker_out})
 		4'b1010: begin
@@ -352,12 +359,12 @@ forever@(negedge start_in)
 		begin
 case({pulse_counter,ncs_in,reset_in,err_checker_out})
 4'b1010: begin
-						ec_checker_out=(CCR==0)?(1'b1):((CCR>0)?(0):(1'bz));
+				//		ec_checker_out=(CCR==0)?(1'b1):((CCR>0)?(0):(1'bz));
 						pulse_counter=(CCR==0)?(0):((CCR>0)? pulse_counter:0);
 						start_in_flag=(CCR==0)?(0):((CCR>0)?1:0);
-						temp2=(CCR>0)?CCR:0;
-						up_flag=(CCR>0)?1:0;
-						cout_checker_out=(PLR>1)?(PLR-1):0; 
+						temp2=0;
+					//	up_flag=(CCR>0)?1:0;
+	//					cout_checker_out=(PLR>1)?(PLR-1):0; 
 end
 
 default: start_in_flag=start_in_flag;
@@ -366,92 +373,69 @@ default: start_in_flag=start_in_flag;
 
 end//}
 endtask
-
-//~~~~~~~~~~~~~~~~~  caller ~~~~~~~~~``````//
-
-task task_caller;
+///~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~``
+//       					COUNTER                                     
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`
+task task_new_counter;
+forever@(posedge clk)  begin //{
 begin//{
-forever@(posedge clk) begin//{
-	if(up_flag==1)
-begin
-task_new;
-end
-else if(down_flag==1)
-		task_new1;
-		else if(preload_flag==1)
-		task_new2;
+  	if(err_checker_out==0 && start_in_flag==1 && temp2<CCR)
+	begin//{
+      if(cout_checker_out==ULR)
+        down_flag=1;
+      if(cout_checker_out==LLR)
+        up_flag=1;
+      if(cout_checker_out==PLR && up_flag===1 && down_flag===1 )
+        preload_flag=1;
+	if(ec_checker_out===1)
+	cout_checker_out=8'dz;
+
+      cout_checker_out= !(cout_checker_out=== 8'dz) ?(((cout_checker_out==ULR && down_flag===0) || down_flag===1) ? ( (cout_checker_out==LLR && up_flag===0) || up_flag===1 ? ( ((cout_checker_out==PLR && preload_flag===0) || preload_flag===1) ? PLR: cout_checker_out+1):cout_checker_out-1): cout_checker_out+1):PLR;
+	 //3  ec_checker_out=(temp2==CCR-1)?1:0;
+
+       		end//}
 end//}
 end//}
 endtask
+//----------------direction block------------------//
+task task_direction;
+forever@(posedge clk) begin
+/*dir_checker_out=!(cout_checker_out=== 8'dz) ?(((cout_checker_out==ULR && down_flag===0) || down_flag===1) ? ( (cout_checker_out==LLR && up_flag===0) || up_flag===1 ? ( ((cout_checker_out==PLR && preload_flag===0) || preload_flag===1) ? 1: 1):0): 1):1;end//}*/
+
+if((cout_checker_out<ULR && down_flag===1'dx) && temp2==0)
+dir_checker_out=1;
+if(cout_checker_out==ULR && temp2==0)
+dir_checker_out=0;
+if(cout_checker_out==LLR && temp2==0)
+dir_checker_out=1;
+if(temp2>=1)
+dir_checker_out=!(cout_checker_out=== 8'dz) ?(((cout_checker_out==ULR && down_flag===0) || down_flag===1) ? ( (cout_checker_out==LLR && up_flag===0) || up_flag===1 ? ( ((cout_checker_out==PLR && preload_flag===0) || preload_flag===1) ? 1: 1):0): 1):1'd1;
 
 
-//~~~~~~~~~~~~~~~~~~~~~~~`flag modifier ~~~~~~~`//
-task task_flag_modifier;
+
+
+
+
+end
+endtask
+
+task task_ec1;
 begin
 forever@(posedge clk)
 		begin
-			if(cout_checker_out==20)
-			begin
-			up_flag=0;
-			down_flag=1;
-			end
-			else if(cout_checker_out==LLR)
-						begin//{
-						preload_flag=1;
-						down_flag=0;
-						end//}
+		    if(preload_flag==1)
+      	begin//{
+					temp2=temp2+1;
+					down_flag=0;
+					up_flag=0;
+					preload_flag=0;
 
-		else if(cout_checker_out==PLR)
-						begin//{
-							preload_flag=0;
-							up_flag=1;
-						end//}
-						else
-						begin
-{up_flag,down_flag,preload_flag}={up_flag,down_flag,preload_flag};
-						end
+//2 ec_checker_out=(temp2==CCR)?1:0;
+	end//}*/
 
-
-
-
+ ec_checker_out=(temp2==CCR)?1:0;
 end
-end
-endtask
 
-
-
-
-//~~~~~~~~~~~~~~~~~ counter ~~~~~~~~~~~~~~~~~~~~~~~~//
-
-
-
-task task_new;
-begin
-//#20
-for( i=0; i<2*(ULR-PLR-2); i=i+1)
-				@(posedge clk) begin cout_checker_out=(cout_checker_out+1); dir_checker_out=1; up_flag=(cout_checker_out==ULR)?0:up_flag; down_flag=(cout_checker_out==ULR)?1:down_flag;  end
-
-end
-endtask
-
-task task_new1;
-begin
- 
-//#37
-for( i=0; i<10; i=i+1)
-				@(posedge clk) cout_checker_out=(cout_checker_out-1); dir_checker_out=0;
-
-
-end
-endtask
-
-
-task task_new2;
-begin
- 
-//#57
-for( i=0; i<5; i=i+1)
-				@(posedge clk) cout_checker_out=(cout_checker_out+1); dir_checker_out=1;
 
 
 end
@@ -467,8 +451,11 @@ endtask
 
 
 
-//	end//}
-//endtask //  */
+
+
+//============================== TASK Compare cout_checker_out ================//
+task task_compare_cout_checker_out;
+	begin//{
 	forever@(negedge clk) begin
 		if(cout_checker_out===count_design_out)
 		begin//{
