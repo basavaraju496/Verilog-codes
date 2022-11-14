@@ -1,4 +1,4 @@
-//`include"FINAL_UDC2.v"
+`include"FINAL_UDC2.v"
 `define ENDTIME 500
 module tb_checker;
 //========================DUT and checker  inputs and DUT outputs========//
@@ -67,11 +67,11 @@ task main;
 fork               // all task executes at same time
 
 	task_checker;
-				//	task_compare_design;
+					task_compare_design;
 
 				//				task_compare_cout_checker_out;
 				//				task_compare_dir;
-				//				task_compare_err;
+								task_compare_err;
 				//				task_compare_ec;
 //	task_stimulus;
 task_inputs;
@@ -93,22 +93,58 @@ begin
 		begin
 
 			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
-	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(1,5,1,1); $display("plr=llr plr<ulr"); 
-	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(5,5,5,1); $display("plr=llr=ulr"); 
+     
+
+          
+          //===================PLR==LLR==ULR====================//
+          wait(ec_checker_out==1)	@(negedge clk) task_stimulus(0,0,0,0); $display("plr=llr=ulr"); 
+          wait(ec_checker_out==1)	@(negedge clk) task_stimulus(10,10,10,2); $display("plr=llr=ulr"); 
+          wait(ec_checker_out==1)	@(negedge clk) task_stimulus(255,255,255,255); $display("plr=llr=ulr"); 
+          wait(ec_checker_out==1)	@(negedge clk) task_stimulus(123,123,123,123); $display("plr=llr=ulr");
+
+          //====================== LLR<PLR<ULR ================//
+	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(0,1,2,3); $display("plr<llR<=ulr"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(4,5,6,7); $display("plr<llR<=ulr"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(0,2,4,6); $display("plr<llR<=ulr"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(0,123,255,1); $display("plr<llR<=ulr"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(68,123,255,1); $display("plr<llR<=ulr"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(240,250,255,1); $display("plr<llR<=ulr"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(123,200,255,1); $display("plr<llR<=ulr"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(50,100,150,2); $display("plr<llR<=ulr"); //0123
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~PLR==LLR~~~ ULR is more~~~~~~~~~~~~~~~~~~~~~//
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(0,0,5,1); $display("plr==llr ulr is more"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(10,10,255,2); $display("plr==llr ulr is more"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(50,50,100,2); $display("plr==llr ulr is more"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(5,5,50,1); $display("plr==llr ulr is more"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(15,15,17,1); $display("plr==llr ulr is more"); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(100,100,255,2); $display("plr==llr ulr is more"); //0123
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ULR=PLR~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`//
+
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(0,2,2,2); $display("PLR=ULR "); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(1,2,2,2); $display("PLR=ULR "); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(10,5,5,5); $display("PLR=ULR "); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(0,255,255,2); $display("PLR=ULR "); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(50,123,123,2); $display("PLR=ULR "); //0123
+	   	wait(ec_checker_out==1)	@(negedge clk) task_stimulus(66,255,255,2); $display("PLR=ULR "); //0123
+           // task_random_input;
+
 		end
 	end
 end
 endtask
-
+//************************* CHANGE INPUT  *****************************//
 task task_stimulus;
-		input  [7:0]PLR_new,ULR_new,LLR_new,CCR_new;
+		//input  [7:0]LLR_new,PLR_new,ULR_new,CCR_new;
+        //input  [7:0]PLR_new,ULR_new,LLR_new,CCR_new;
+
 		begin
 				//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //									WRITING		LLR<PLR<ULR
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
 	@(negedge clk)	ncs_in=0; reset_in=0;
-  @(negedge clk) ncs_in=0; reset_in=1;  nwr_in=0;  // nrd=0;
-  @(negedge clk) a0=0; a1=0; reset_in=1;  reg_design_din=PLR_new; // plr
+          @(negedge clk) ncs_in=0; reset_in=1;  nwr_in=1;  // nrd=0;
+          @(negedge clk) a0=0; a1=0; reset_in=1; nwr_in=0; reg_design_din=PLR_new; // plr
   @(negedge clk) a0=1; a1=0; reg_design_din=ULR_new;    // ulr
   @(negedge clk) a0=0; a1=1; reg_design_din=LLR_new;    // llr
   @(negedge clk) a0=1; a1=1; reg_design_din=CCR_new;    //ccr    data loaded   reset data af5er writing
@@ -133,6 +169,170 @@ $display(" start pulse applied ");
 
 		end
 	endtask
+
+
+task task_random_input;
+begin
+    repeat(10) begin
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//									WRITING		
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
+	@(negedge clk)	ncs_in=0; reset_in=0;
+    @(negedge clk) ncs_in=0; reset_in=1;  nwr_in=1;  // nrd=0;
+    @(negedge clk) a0=0; a1=0; reset_in=1; nwr_in=0; reg_design_din=$random; // plr
+    @(negedge clk) a0=1; a1=0; reg_design_din=$random;    // ulr
+    @(negedge clk) a0=0; a1=1; reg_design_din=$random;    // llr
+    @(negedge clk) a0=1; a1=1; reg_design_din=$random;    //ccr    data loaded   reset data af5er writing
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//									READING	
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
+#5 
+  @(negedge clk) ncs_in=0; reset_in=1;  nwr_in=1;   nrd_in=0;
+  @(negedge clk) a0=0; a1=0;   // plr
+  @(negedge clk) a0=1; a1=0;    // ulr
+  @(negedge clk) a0=0; a1=1;   // llr
+  @(negedge clk) a0=1; a1=1;   //ccr    data loaded   reset data af5er writing
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//									START 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
+//@(negedge clk) ncs_in=1; 
+$display(" start pulse applied ");
+@(negedge clk) ncs_in=0; start_in=1;   nwr_in=1; nrd_in=1;             // start pulse given at negedge of clock
+@(negedge clk )  start_in=0;  
+end
+end
+endtask
+
+
+task middle_values;
+begin
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      NCS while counting   
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+wait(cout_checker_out==15) ncs_in=1;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      WRITING while counting   
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==8)   nwr=0; {a1,a0}=1;  reg_design_din=100;
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==5)   nwr=0; {a1,a0}=2;  reg_design_din=150;
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==15)   nwr=0; {a1,a0}=3;  reg_design_din=200;
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==8)   nwr=0; {a1,a0}=0;  reg_design_din=100;
+
+ //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      READING while counting   
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==5)   nrd=0; {a1,a0}=1; 
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==15)   nrd=0; {a1,a0}=2;  
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==8)   nrd=0; {a1,a0}=3;  
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==8)   nrd=0; {a1,a0}=0;  
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      RESET while counting   
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+   			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==15)   reset_in=0;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      START while counting   
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==14)  @(negedge clk) start_in=1;
+                    wait(cout_checker_out==15)  @(negedge clk) start_in=0;
+                task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==12)  @(posedge clk) start_in=1;
+                    wait(cout_checker_out==13)  @(posedge clk) start_in=1;
+                task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==10)  @(posedge clk) start_in=1;
+                    wait(cout_checker_out==13)  @(posedge clk) start_in=1;
+                task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(cout_checker_out==10)  @(negedge clk) start_in=1;
+                    wait(cout_checker_out==13)  @(negedge clk) start_in=1;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      START pulse when END CYCLE == 1    
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)  @(negedge clk) start_in=1;
+                    wait(ec_checker_out==0)  @(negedge clk) start_in=0;
+                task_stimec(10,15,5,2); $1splay("llr<plr<ulr");
+                    wait(ec_checker_out==1)  @(posedge clk) start_in=1;
+                    wait(ec_checker_out==0)  @(posedge clk) start_in=1;
+                task_stimec(10,15,5,2); $1splay("llr<plr<ulr");
+                    wait(ec_checker_out==1)  @(posedge clk) start_in=1;
+                    wait(ec_checker_out==0)  @(posedge clk) start_in=1;
+                task_stimec(10,15,5,2); $1splay("llr<plr<ulr");
+                    wait(ec_checker_out==1)  @(negedge clk) start_in=1;
+                    wait(ec_checker_out==0)  @(negedge clk) start_in=1;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      RESET when END CYCLE == 1    
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)  reset_in=0;
+                task_stimulus(10,15,5,2); 
+                    wait(ec_checker_out==1)  reset_in=0;
+                task_stimulus(10,15,5,2); 
+                    wait(ec_checker_out==0)  @(posedge clk) reset_in=0;
+                task_stimulus(10,15,5,2); 
+                    wait(ec_checker_out==0)  @(negedge clk) reset_in=0;
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      READING when END CYCLE == 1    
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nrd=0; {a1,a0}=1; 
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nrd=0; {a1,a0}=2;  
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nrd=0; {a1,a0}=3;  
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nrd=0; {a1,a0}=0;  
+
+
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      WRITING when END CYCLE == 1    
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nwr=0; {a1,a0}=1;  reg_design_din=100;
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nwr=0; {a1,a0}=2;  reg_design_din=150;
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nwr=0; {a1,a0}=3;  reg_design_din=200;
+
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nwr=0; {a1,a0}=0;  reg_design_din=100;
+
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+//                      starting while error 
+//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+                    wait(ec_checker_out==1)   nwr=0; {a1,a0}=1;  reg_design_din=100;
+
+
+end
+endtask
+
+
+
+
+
+
+
+
 
 //========================= task checker ==================// 
 task task_checker;
@@ -307,7 +507,7 @@ forever@(posedge clk)
 					begin//{
 
 err_checker_out=(PLR<LLR || PLR>ULR)?1:0;
-
+{plr_flag,llr_flag,ccr_flag,ulr_flag}=err?0:{plr_flag,llr_flag,ccr_flag,ulr_flag};
 					end//}
 					end
 endtask
