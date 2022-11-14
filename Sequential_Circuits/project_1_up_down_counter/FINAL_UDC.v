@@ -3,7 +3,7 @@ module up_down_counter255_tester (inout [7:0]Din,input clk,ncs,nrd,nwr,start_in,
 reg start_flag; // start flag is raised whenever start pulse comes 
 reg [7:0]reg_out;  // storing din out value in reg for storing input
 reg [7:0]temporary_CCR;  // to store ccr
-integer pulse_counter; // to count pulses in start
+reg [5:0]pulse_counter; // to count pulses in start counts the start pulses
 
 assign Din=(ncs==0 && nrd==0 && nwr==1)? reg_out:8'bz;  // whenever value in din out changes the it iis assigned to din 
 //  inout port must be wire so we are unable to use in procedural blocks(while
@@ -13,17 +13,15 @@ assign Din=(ncs==0 && nrd==0 && nwr==1)? reg_out:8'bz;  // whenever value in din
 
 reg [7:0]PLR,ULR,CCR,LLR;
 // registers for storing values required for counter
-// ===>PLR = stores  count start value 
-// ======>ULR = stores upperlimit of count
-// ========>LLR = stores lower limit of count
-//==>CCR= number of times to count
-// reg [9:0]temp,no_of_PLRs;
-// temp is used to calculate the no of PLRs came in counting sequence
+// ===>PLR = PRELOAD REGISTER stores  count start value 
+// ======>ULR = UPPER LIMIT REGISTER stores upperlimit of count
+// ========>LLR = LOWER LIMIT REGISTER stores lower limit of count
+//==>CCR= CYCLIC COUNT REGISTER number of times to count
 
 reg up_flag,down_flag,preload_flag;
-// these flags will control flow of count
+// these flags will control flow of count whether to do up counting or downcounting
 
-reg plr_flag,ulr_flag,llr_flag,ccr_flag;  // flags to prevent overwrite the data into registers while counting
+reg plr_flag,ulr_flag,llr_flag,ccr_flag;  // flags to prevent overwrite the data into registers while counting and to prevent the multiple times writing of data
 
 always@(posedge clk)
 		begin //{  1
@@ -175,6 +173,7 @@ always@(posedge clk)
 		if(PLR<LLR || PLR>ULR)
 			begin//{
 				err=1;
+              {plr_flag,ulr_flag,ccr_flag,llr_flag}=0;
 			end//}
 			else
 				begin//{
@@ -190,7 +189,7 @@ always@(posedge clk)
 		 if(start_in==1 && ncs==0 && reset==1 &&  err==0  )   // detects only whren err=0
 				begin//{
 					pulse_counter=pulse_counter+1;   // counting start pulses
-					$display("inside start detectot pulses=%0d",pulse_counter);
+                    
 				end//}
 				else
 					begin//{
@@ -216,14 +215,9 @@ always@(negedge clk)
 
 always@(negedge start_in)
 		begin//{
-		if( ncs==0 && reset==1 &&  err==0 ) // starts only when one pulse is obtained and ncs=0 reset =1 ,.	
-
+		if( ncs==0 && reset==1 &&  err==0 ) // starts only when one pulse is obtained and ncs=0 reset =1 ,.....
 		begin//{
-
-
-					$display("DUT inside negede start detectot pulses=%0d",pulse_counter);
-		
-          if(pulse_counter==1 || pulse_counter==2 ) begin
+          if(pulse_counter==1 || pulse_counter==2) begin
 				if(CCR==0)         // storing CCR values to temporary register
 					begin			
 					ec=1'b1; 
@@ -260,7 +254,7 @@ always@(negedge start_in)
 							start_flag=start_flag;  // pulse count>1 || ncs=1 || reset=0 || nwr=0 || nrd=0 || err=1 endcycle=0    
 						end//}
 
-		end//}*/
+		end//}
 
 // ===========================COUNTER BLOCK====================//
 //----------------UP COUNTING UPTO ULR @ ------------------------------//
@@ -270,7 +264,6 @@ always @(posedge clk )
 				begin//{
 					if(up_flag==1)
 							begin//{
-                             // dir=(cout<ULR)?1:0;
 								if(cout<ULR) 
 									begin//{
                                       cout=cout+1;  dir=(cout<ULR)?1:0;   // dir=1 when upcounting
@@ -281,7 +274,7 @@ always @(posedge clk )
 									begin//{
 										if(cout==PLR && cout==ULR && cout==LLR )
 											begin//{
-											 temporary_CCR=temporary_CCR-1;   // IF CCR=1 ?? CHECK ALL EQUAL CASE
+											 temporary_CCR=temporary_CCR-1;  
 											if(temporary_CCR==0) 
                                                 begin
 											        ec=1;
@@ -328,10 +321,7 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 										    ec=1;
 											pulse_counter=0;
 											start_flag=0;
-											//down_flag=0;
-										//	cout=cout;
 											temporary_CCR=8'bz;	
-										//{upoad_flag,up_flag,preload_flag}=0;
 										end
 
 									end//}	
@@ -373,10 +363,7 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 											begin
 												ec=1;
 												pulse_counter=0;
-										//		{preload_flag,up_flag,preload_flag}=0;
-
 													start_flag=0;
-												//	cout=cout;
 													temporary_CCR=8'bz;
 											end
                                             else
@@ -409,12 +396,12 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 					
 		end//}
 //==============================END CYCLE @============================//
-	always@(negedge clk)
+  always@(posedge clk)
 	begin	
 		if(ec==1) begin
 					{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;  // WE CAN WRITE NEW DATA AFTER ENDCYCLE 
 				dir=1'bz;
-{preload_flag,up_flag,down_flag}=0;
+          {preload_flag,up_flag,down_flag}=0;
 				ec<=0; 
 					end
 				else begin
