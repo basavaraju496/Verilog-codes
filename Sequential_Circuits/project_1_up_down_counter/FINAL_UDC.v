@@ -34,7 +34,7 @@ always@(posedge clk)
 											CCR=0;
 											ULR=8'd255;  
 											ec=1'b0;  // initiallly zero
-											err=1'bz;
+											err=1'b0;
                                             dir=1'bz;      
                                             start_flag=1'bz; 
 											pulse_counter=0;

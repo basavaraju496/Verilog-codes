@@ -87,10 +87,10 @@ begin
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
 	@(negedge clk)	ncs_in=0; reset_in=0;
     @(negedge clk) ncs_in=0; reset_in=1;  nwr_in=1;  // nrd_in=0;
-    @(negedge clk) a0=0; a1=0; reset_in=1; nwr_in=0; reg_design_din=10; // plr
-    @(negedge clk) a0=1; a1=0; reg_design_din=15;    // ulr
-    @(negedge clk) a0=0; a1=1; reg_design_din=5;    // llr
-    @(negedge clk) a0=1; a1=1; reg_design_din=3;    //ccr    data loaded   reset data af5er writing
+    @(negedge clk) a0=0; a1=0; reset_in=1; nwr_in=0; reg_design_din=0; // plr
+    @(negedge clk) a0=1; a1=0; reg_design_din=5;    // ulr
+    @(negedge clk) a0=0; a1=1; reg_design_din=10;    // llr
+    @(negedge clk) a0=1; a1=1; reg_design_din=2;    //ccr    data loaded   reset data af5er writing
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //									READING	
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~	
