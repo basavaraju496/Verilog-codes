@@ -29,7 +29,7 @@ always@(posedge clk)
 					begin //{ chip select on 2
 						if(reset==0)
 										begin //{   // reset==0
-											PLR=1;
+											PLR=0;
 											LLR=0;
 											CCR=0;
 											ULR=8'd255;  
@@ -44,6 +44,7 @@ always@(posedge clk)
 											llr_flag=0;
 											ulr_flag=0;
 											ccr_flag=0;
+{up_flag,down_flag,preload_flag}=0;
 
 						   				 end //} reset==0 end
 						else  // reset ==1 case
@@ -182,7 +183,7 @@ always@(posedge clk)
 				end//}
 		end//}
 	
-			
+reg data_flag;			
 //====================== START FLAG @==============================//
 always@(posedge clk)
 		begin//{
@@ -209,8 +210,7 @@ always@(negedge clk)
 	
 					end//}
 		end//}
-
-
+		
 
 
 always@(negedge start_in)
@@ -220,19 +220,25 @@ always@(negedge start_in)
           if(pulse_counter==1 || pulse_counter==2) begin
 				if(CCR==0)         // storing CCR values to temporary register
 					begin			
-					ec=1'b1; 
+					{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;  // WE CAN WRITE NEW DATA AFTER ENDCYCLE 
 					pulse_counter=0;
 					start_flag=0;
+					data_flag=1;
+          {preload_flag,up_flag,down_flag}=0;
+		  
+					
 					end
 					else if(CCR>0)
 					begin
 					temporary_CCR=CCR; 
 					dir=1;
-					ec=0; 
-					start_flag=1;
+				ec=0; 
+				//	start_flag=1;
+					data_flag=1;
 					pulse_counter=pulse_counter;
-					up_flag=1;         
-                      cout=(PLR>1)?(PLR-1):0;   // loaded with plr-1 but show count from PLR
+				//	up_flag=1;         
+                  //  cout=(PLR>1)?(PLR-1):0;   // loaded with plr-1 but show count from PLR
+				  //cout=PLR;    
 					end
                     else
                     begin
@@ -255,6 +261,17 @@ always@(negedge start_in)
 						end//}
 
 		end//}
+always@(posedge clk)
+		begin
+if(data_flag==1)
+		begin
+		cout=PLR;
+		start_flag<=1;
+		up_flag<=1;
+		end
+		else
+		cout=cout;
+end
 
 // ===========================COUNTER BLOCK====================//
 //----------------UP COUNTING UPTO ULR @ ------------------------------//
@@ -262,7 +279,9 @@ always @(posedge clk )
 		begin//{
 			if(start_flag==1 && ncs==0  && reset==1 &&  err==0 && ec==0)
 				begin//{
+				data_flag=0;
 					if(up_flag==1)
+		
 							begin//{
 								if(cout<ULR) 
 									begin//{
@@ -272,10 +291,10 @@ always @(posedge clk )
 	
                               else // count ==ulr
 									begin//{
-										if(cout==PLR && cout==ULR && cout==LLR )
+										if(PLR == ULR && PLR==LLR )
 											begin//{
 											 temporary_CCR=temporary_CCR-1;  
-											if(temporary_CCR==0) 
+											if(temporary_CCR==0 || temporary_CCR==1) 
                                                 begin
 											        ec=1;
 													pulse_counter=0;
@@ -314,20 +333,25 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 				 	 if(down_flag==1)
 							begin//{
 								 if(cout>LLR)
-								begin//{
+									begin//{
 									cout=cout-1; dir=(cout>LLR)?0:1;// dir=0 when downcounting
 									if((cout==PLR && cout==LLR) && temporary_CCR==1)	// CHECK PLR==LLR
-									    begin
+									    begin//{
 										    ec=1;
 											pulse_counter=0;
 											start_flag=0;
 											temporary_CCR=8'bz;	
+									end//}
+									else begin
+										cout=cout;
+										ec=ec;
 										end
+
 
 									end//}	
 								else 
 								begin//{
-									preload_flag=1; down_flag=0; dir=1;
+									preload_flag=1; down_flag=0; dir=1; 
 								end//}
 	
 							
@@ -402,10 +426,10 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 					{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;  // WE CAN WRITE NEW DATA AFTER ENDCYCLE 
 				dir=1'bz;
           {preload_flag,up_flag,down_flag}=0;
-				ec<=0; 
+				ec=0; 
 					end
 				else begin
-					ec<=ec;
+					ec=ec;
                 end
 end
 ///////////======================== THE END  =======================//
@@ -414,6 +438,7 @@ end
 
 
     endmodule
+
 
 
 
