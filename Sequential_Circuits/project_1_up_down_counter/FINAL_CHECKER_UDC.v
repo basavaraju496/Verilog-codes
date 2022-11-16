@@ -87,9 +87,9 @@ begin
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~		
 	@(negedge clk)	ncs_in=0; reset_in=0;
     @(negedge clk) ncs_in=0; reset_in=1;  nwr_in=1;  // nrd_in=0;
-    @(negedge clk) a0=0; a1=0; reset_in=1; nwr_in=0; reg_design_din=0; // plr
-    @(negedge clk) a0=1; a1=0; reg_design_din=5;    // ulr
-    @(negedge clk) a0=0; a1=1; reg_design_din=10;    // llr
+    @(negedge clk) a0=0; a1=0; reset_in=1; nwr_in=0; reg_design_din=1; // plr
+    @(negedge clk) a0=1; a1=0; reg_design_din=2;    // ulr
+    @(negedge clk) a0=0; a1=1; reg_design_din=0;    // llr
     @(negedge clk) a0=1; a1=1; reg_design_din=2;    //ccr    data loaded   reset data af5er writing
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //									READING	
@@ -144,8 +144,8 @@ $display(" start pulse applied ");
 
 //#71	start_in=1;
 //#2 start_in=0;
-wait(ec_checker_out==1) #1 start_in=1;
-#2 start_in=0;
+//wait(ec_checker_out==1) #1 start_in=1;
+//#2 start_in=0;
 end
 end
 endtask
@@ -217,7 +217,7 @@ begin//{
 														CCR=0;
 														ULR=8'd255;  
 														ec_checker_out=1'b0;  // initiallly zero
-														err_checker_out=1'bz;
+														err_checker_out=1'b0;
                                     			        dir_checker_out=1'bz;      
 														pulse_counter=0;
 														cout_checker_out=8'bz;
@@ -360,7 +360,6 @@ begin//{
 case({ncs_in,reset_in,err_checker_out})
 		4'b010: begin
 
-		$display("inside start 3 pulse =%0d",pulse_counter);
 						if(start_in==1) begin
                         pulse_counter=pulse_counter+1;  // counts the m=number of pulses
 						end
@@ -390,8 +389,6 @@ end
 else
 begin
 	dir_checker_out=1;
-//temp2=CCR;
-//$display("inside  start  ***********");
 						task_repeat;    // calling counter task to start counting
 								if(ncs_in==0  && reset_in==1 &&  err_checker_out==0 && ec_checker_out==0)
 						
@@ -429,7 +426,6 @@ task task_repeat;
 begin//{
 		repeat(CCR)    // to repeat CCR times
 						begin//{ 
-$display("time=%0D inside  repeat  *********** ncs_in,reset_in,err_checker_out,ec_checker_out= %B",$time,{ncs_in,reset_in,err_checker_out,ec_checker_out});
 						
 						case({ncs_in,reset_in,err_checker_out,ec_checker_out}) 4'b0100: begin//{
 							repeat(1)   // to get initial value
@@ -437,7 +433,6 @@ $display("time=%0D inside  repeat  *********** ncs_in,reset_in,err_checker_out,e
 								if(ncs_in==0  && reset_in==1 &&  err_checker_out==0 && ec_checker_out==0)
                                   @(posedge clk) begin cout_checker_out=PLR; dir_checker_out=(cout_checker_out<ULR)?1:0; 
 
-$display("time=%0D inside  repeat1  *********** ncs_in,reset_in,err_checker_out,ec_checker_out= %B count=%0d",$time,{ncs_in,reset_in,err_checker_out,ec_checker_out},cout_checker_out);
 
 
 end							//	end
@@ -448,7 +443,6 @@ end
 
 									begin
 									@(posedge clk) begin	cout_checker_out=cout_checker_out+1; dir_checker_out=(cout_checker_out<ULR)?1:0; end
-$display("time=%0D inside  repeat2  *********** ncs_in,reset_in,err_checker_out,ec_checker_out= %B count=%0d",$time,{ncs_in,reset_in,err_checker_out,ec_checker_out},cout_checker_out);
 									
 									end
 									end
@@ -468,8 +462,6 @@ begin
 										
 										end
 										
-									//if(CCR!=1)	@(posedge clk) begin cout_checker_out=PLR; end
-					//	temp2=temp2-1;
 								end//}
 								default: begin end
 								endcase
@@ -498,77 +490,6 @@ end
 end//}
 end//}
 endtask
-
-//============================== TASK Compare cout_checker_out ================//
-task task_compare_cout_checker_out;
-	begin//{
-	forever@(negedge clk) begin
-		if(cout_checker_out===count_design_out)
-		begin//{
-		$display("cout_checker_out is correct ");
-		end//}
-		else
-						begin//{
-								$display("cout_checker_out is wrong");
-						end//}
-		
-	end//}
-	end
-endtask
-
-
-//============================== TASK Compare dir ================//
-task task_compare_dir;
-	begin//{
-	forever@(negedge clk) begin
-		if(dir_checker_out===dir_design_out)
-		begin
-		$display("direction is correct ");
-		end
-		else
-						begin//{
-								$display("direction is wrong");
-						end//}
-		
-	end//}
-	end//}
-endtask
-
-
-//============================== TASK Compare error ================//
-task task_compare_err;
-	begin//{
-	forever@(negedge clk) begin
-		if(err_checker_out===err_design_out)
-		begin
-		$display("error signal matched  ");
-		end
-		else
-						begin//{
-								$display(" error signal not matched");
-						end//}
-		
-	end//}
-	end//}
-endtask
-
-//============================== TASK Compare end cycle ================//
-task task_compare_ec;
-	begin//{
-	forever@(negedge clk) begin
-		if(ec_checker_out===ec_design_out)
-		begin
-		$display("end cycle is correct ");
-		end
-		else
-						begin//{
-								$display("end cycle is wrong");
-						end//}
-	end//}
-		
-	end//}
-endtask
-
 
 //============================== TASK Compare design ================//
 task task_compare_design;

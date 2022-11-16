@@ -1,5 +1,5 @@
 
-module up_down_counter2556 (inout [7:0]Din,input clk,ncs,nrd,nwr,start_in,reset,A0,A1 ,output reg [7:0]cout,output reg err,ec,dir);
+module up_down_counter255_tester (inout [7:0]Din,input clk,ncs,nrd,nwr,start_in,reset,A0,A1 ,output reg [7:0]cout,output reg err,ec,dir);
 reg start_flag; // start flag is raised whenever start pulse comes 
 reg [7:0]reg_out;  // storing din out value in reg for storing input
 reg [7:0]temporary_CCR;  // to store ccr
@@ -34,7 +34,7 @@ always@(posedge clk)
 											CCR=0;
 											ULR=8'd255;  
 											ec=1'b0;  // initiallly zero
-											err=1'b0;
+											err=1'bz;
                                             dir=1'bz;      
                                             start_flag=1'bz; 
 											pulse_counter=0;
@@ -44,7 +44,6 @@ always@(posedge clk)
 											llr_flag=0;
 											ulr_flag=0;
 											ccr_flag=0;
-{up_flag,down_flag,preload_flag}=0;
 
 						   				 end //} reset==0 end
 						else  // reset ==1 case
@@ -210,7 +209,17 @@ always@(negedge clk)
 	
 					end//}
 		end//}
-		
+always@(posedge clk)
+		begin
+if(data_flag==1)
+		begin
+		cout=PLR;
+	//	start_flag<=1;
+	//	up_flag<=1;
+		end
+		else
+		cout=cout;
+end
 
 
 always@(negedge start_in)
@@ -223,7 +232,6 @@ always@(negedge start_in)
 					{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;  // WE CAN WRITE NEW DATA AFTER ENDCYCLE 
 					pulse_counter=0;
 					start_flag=0;
-					data_flag=1;
           {preload_flag,up_flag,down_flag}=0;
 		  
 					
@@ -232,9 +240,13 @@ always@(negedge start_in)
 					begin
 					temporary_CCR=CCR; 
 					dir=1;
-					ec=0; 
+				ec=0; 
+					start_flag=1;
 					data_flag=1;
 					pulse_counter=pulse_counter;
+					up_flag=1;         
+                  //    cout=(PLR>1)?(PLR-1):0;   // loaded with plr-1 but show count from PLR
+				  cout=PLR;    
 					end
                     else
                     begin
@@ -257,38 +269,62 @@ always@(negedge start_in)
 						end//}
 
 		end//}
-always@(posedge clk)
-		begin
-if(data_flag==1)
-		begin
-		//cout=PLR;
-		start_flag<=1;
-		up_flag<=1;
-		end
-		//else
-		//cout=cout;
-end
-
-always@(posedge clk)
-		begin
-if(data_flag==1)
-		begin
-		cout=PLR;
-		//start_flag<=1;
-		//up_flag<=1;
-		end
-		//else
-		//cout=cout;
-end
-
-
-
-
-
-
-
 
 // ===========================COUNTER BLOCK====================//
+//----------------UP COUNTING UPTO ULR @ ------------------------------//
+always @(posedge clk )
+		begin//{
+			if(start_flag==1 && ncs==0  && reset==1 &&  err==0 && ec==0)
+				begin//{
+				data_flag=0;
+					if(up_flag==1)
+		
+							begin//{
+								if(cout<ULR) 
+									begin//{
+                                      cout=cout+1;  dir=(cout<ULR)?1:0;   // dir=1 when upcounting
+							
+					{plr_flag,ulr_flag,llr_flag,ccr_flag}=0;  // WE CAN WRITE NEW DATA AFTER ENDCYCLE 
+                                    end//}	
+	
+                              else // count ==ulr
+									begin//{
+										if(PLR == ULR && PLR==LLR )
+											begin//{
+											 temporary_CCR=temporary_CCR-1;  
+											if(temporary_CCR==0 || temporary_CCR==1) 
+                                                begin
+											        ec=1;
+													pulse_counter=0;
+													start_flag=0;
+													cout=cout;
+													temporary_CCR=8'bz;
+                                            	end
+                                                else
+                                                begin
+                                                    ec=ec;
+													cout=cout;
+											        down_flag=1; up_flag=0; dir=0;
+													
+                                                end
+											end//}
+											else
+                                                 begin
+											        down_flag=1; up_flag=0; dir=0;
+                                                end
+					    				end//}
+end//}
+					else
+							begin//{
+									cout=cout; dir=dir;
+
+								end//}
+end//}
+else
+begin
+		cout=cout; dir=dir;
+end
+end//}
 
 //============================DOWN COUNTING UPTO LLR ================================//
 always@(posedge clk)		
@@ -297,26 +333,20 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 				 	 if(down_flag==1)
 							begin//{
 								 if(cout>LLR)
-									begin//{
+								begin//{
 									cout=cout-1; dir=(cout>LLR)?0:1;// dir=0 when downcounting
 									if((cout==PLR && cout==LLR) && temporary_CCR==1)	// CHECK PLR==LLR
-									    begin//{
+									    begin
 										    ec=1;
-											dir=1'bz;
 											pulse_counter=0;
 											start_flag=0;
 											temporary_CCR=8'bz;	
-									end//}
-									else begin
-										cout=cout;
-										ec=ec;
 										end
-
 
 									end//}	
 								else 
 								begin//{
-									preload_flag=1; down_flag=0; dir=1; 
+									preload_flag=1; down_flag=0; dir=1;
 								end//}
 	
 							
@@ -338,13 +368,7 @@ end
 
 end//}
 
-/*always@(posedge clk)
-begin
-		if(temporary_CCR==0)
-				ec=1;
 
-
-end*/
 // ===============================UP COUNTING UPTO PLR===================//
 always@(posedge clk)
 begin//{
@@ -357,7 +381,6 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 										if(cout==PLR && temporary_CCR==1)
 											begin
 												ec=1;
-												dir=1'bz;
 												pulse_counter=0;
 													start_flag=0;
 													temporary_CCR=8'bz;
@@ -369,12 +392,10 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 									end//}
 									else 
 									begin//{	
-                                      temporary_CCR=temporary_CCR-1;  dir=(cout<ULR)?1:0;
+                                      temporary_CCR=temporary_CCR-1; up_flag=1; dir=(cout<ULR)?1:0;
                                       preload_flag=0;
-										if(temporary_CCR==0)
-										ec=1;
-										else
-											up_flag=1;
+										
+										
 									end//}
 							
 								end//}		
@@ -393,64 +414,6 @@ if(start_flag==1 && ncs==0 &&  reset==1 &&  err==0 && ec==0)		begin//{
 					
 					
 		end//}
-
-
-//----------------UP COUNTING UPTO ULR @ ------------------------------//
-always @(posedge clk )
-		begin//{
-			if(start_flag==1 && ncs==0  && reset==1 &&  err==0 && ec==0)
-				begin//{
-				data_flag=0;
-					if(up_flag==1)
-		
-							begin//{
-								if(cout<ULR) 
-									begin//{
-                                      cout=cout+1;  dir=(cout<ULR)?1:0;   // dir=1 when upcounting
-									 // if(cout==ULR) begin  down_flag=1; up_flag=0; end
-							
-                                    end//}	
-	
-                              else // count ==ulr
-									begin//{
-										if(PLR == ULR && PLR==LLR )
-											begin//{
-											 temporary_CCR=temporary_CCR-1;  
-											if(temporary_CCR==0 || temporary_CCR==1) 
-                                                begin//{
-											        ec=1;
-													dir=1'bz;
-													pulse_counter=0;
-													start_flag=0;
-													cout=cout;
-													temporary_CCR=8'bz;
-                                            	end//}
-                                                else
-                                                begin//{
-                                                    ec=ec;
-													cout=cout;
-                                                end//}
-											end//}
-											else
-                                                 begin//{
-											        down_flag=1; up_flag=0; dir=0;
-                                                end//}
-					    				end//}
-end//}
-					else
-							begin//{
-									cout=cout; dir=dir;
-
-								end//}
-end//}
-else
-begin
-		cout=cout; dir=dir;
-end
-end//}
-
-
-
 //==============================END CYCLE @============================//
   always@(posedge clk)
 	begin	
