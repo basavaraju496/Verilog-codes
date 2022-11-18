@@ -1,3 +1,10 @@
+# vsim -debugdb -c -do "log -r /*; save -onexit -directive -codeAll;run -all;exit" work.compare_udc 
+# Start time: 19:04:12 on Nov 18,2022
+# ** Warning: (vsim-4308) Enabling visibility using +acc is recommended with debug flow.
+# ** Note: (vsim-3813) Design is being optimized due to module recompilation...
+# ** Note: (vsim-8611) Generating debug db.
+# ** Warning: (vopt-4308) Enabling visibility using +acc is recommended with debug flow.
+# ** Note: (vsim-12126) Error and warning message counts have been restored: Errors=0, Warnings=2.
 # //  Questa Sim-64
 # //  Version 2021.4_3 linux_x86_64 Feb  5 2022
 # //
@@ -12,4 +19,284 @@
 # //  is prohibited from disclosure under the Trade Secrets Act,
 # //  18 U.S.C. Section 1905.
 # //
-# vsim.wlf opened as dataset "vsim"
+# Loading work.compare_udc(fast)
+# ** Note: (vsim-8900) Creating design debug database vsim.dbg.
+# log -r /*
+#  save -onexit -directive -codeAll
+# invalid command name "save"
+# run -all
+# ** Warning: (vsim-PLI-3407) Too many data words read on line 257 of file "DUT_UDC_op.txt". (Current address [256], address range [0:255])    : compare_udc.v(8)
+#    Time: 0 ns  Iteration: 0  Instance: /compare_udc
+# ** Warning: (vsim-PLI-3407) Too many data words read on line 257 of file "CHECKER_UDC_op.txt". (Current address [256], address range [0:255])    : compare_udc.v(9)
+#    Time: 0 ns  Iteration: 0  Instance: /compare_udc
+# xxxxxxx---FAILED---ixxx
+# dut memory =x checker memory =x ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# xxxxxxx---FAILED---ixxx
+# dut memory =z checker memory =z ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =17 checker memory =17 ----------PASSED-------
+# dut memory =18 checker memory =18 ----------PASSED-------
+# dut memory =19 checker memory =19 ----------PASSED-------
+# dut memory =20 checker memory =20 ----------PASSED-------
+# dut memory =21 checker memory =21 ----------PASSED-------
+# dut memory =20 checker memory =20 ----------PASSED-------
+# dut memory =19 checker memory =19 ----------PASSED-------
+# dut memory =18 checker memory =18 ----------PASSED-------
+# dut memory =17 checker memory =17 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =9 checker memory =9 ----------PASSED-------
+# dut memory =8 checker memory =8 ----------PASSED-------
+# dut memory =7 checker memory =7 ----------PASSED-------
+# dut memory =6 checker memory =6 ----------PASSED-------
+# dut memory =5 checker memory =5 ----------PASSED-------
+# dut memory =6 checker memory =6 ----------PASSED-------
+# dut memory =7 checker memory =7 ----------PASSED-------
+# dut memory =8 checker memory =8 ----------PASSED-------
+# dut memory =9 checker memory =9 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =17 checker memory =17 ----------PASSED-------
+# dut memory =18 checker memory =18 ----------PASSED-------
+# dut memory =19 checker memory =19 ----------PASSED-------
+# dut memory =20 checker memory =20 ----------PASSED-------
+# dut memory =21 checker memory =21 ----------PASSED-------
+# dut memory =20 checker memory =20 ----------PASSED-------
+# dut memory =19 checker memory =19 ----------PASSED-------
+# dut memory =18 checker memory =18 ----------PASSED-------
+# dut memory =17 checker memory =17 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =9 checker memory =9 ----------PASSED-------
+# dut memory =8 checker memory =8 ----------PASSED-------
+# dut memory =7 checker memory =7 ----------PASSED-------
+# dut memory =6 checker memory =6 ----------PASSED-------
+# dut memory =5 checker memory =5 ----------PASSED-------
+# dut memory =6 checker memory =6 ----------PASSED-------
+# dut memory =7 checker memory =7 ----------PASSED-------
+# dut memory =8 checker memory =8 ----------PASSED-------
+# dut memory =9 checker memory =9 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# dut memory =16 checker memory =16 ----------PASSED-------
+# exit
+# End time: 19:04:12 on Nov 18,2022, Elapsed time: 0:00:00
+# Errors: 0, Warnings: 4

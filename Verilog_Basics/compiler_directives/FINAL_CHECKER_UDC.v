@@ -1,5 +1,5 @@
 `include"FINAL_UDC.v"
-`define WIDTH 7
+//`define WIDTH 7
 //`define ENDTIME 3000
 `define CLK_PERIOD 30.3
 `define CYCLES 2000
@@ -75,13 +75,14 @@ fork               // all task executes at same time
 task_inputs;
 //task_random_input;
 	task_clk_generation1;
-//	task_end_simulation;
 //	task_middle_values;
+	task_write_into_file;
 
 join
 end
 endtask
-
+//===========================clk
+//generation===================================//
 task task_clk_generation1;
 begin
 
@@ -92,6 +93,32 @@ begin
 
 end
 endtask
+
+
+//``````````````````````````````````````````````````````````````````````````````````````````
+//                            FILE CREATION for storing ops(2)
+//`````````````````````````````````````````````````````````````````````````````````````````
+	integer fd_DUT, fd_CHECKER;  // file descriptors
+	initial begin
+		fd_DUT = $fopen("DUT_UDC_op.txt","w");
+		fd_CHECKER = $fopen("CHECKER_UDC_op.txt","w");
+	end
+
+
+
+
+	//============= writing memory data to the respectve op files ============//
+	task task_write_into_file;
+	begin
+		forever@(negedge clk) begin
+			$fwrite(fd_DUT,"%d\n",count_design_out);
+			$fwrite(fd_CHECKER,"%d\n",cout_checker_out);
+		end
+	end
+	endtask
+
+
+
 task task_inputs;
 begin
 	repeat(1)
@@ -100,7 +127,7 @@ begin
 		begin
 `ifdef BASIC
 			    task_stimulus(5,10,15,2); $display("llr<plr<ulr");
-        /*wait(ec_checker_out==1 || err_checker_out==1)*/ #120.000	@(negedge clk) task_stimulus(0,0,250,1); //$display("plr=llr=ulr"); 
+      //  /*wait(ec_checker_out==1 || err_checker_out==1)*/ #120.000	@(negedge clk) task_stimulus(0,0,250,1); //$display("plr=llr=ulr"); 
      
 
 `endif		
@@ -156,7 +183,7 @@ endtask
 //
 task task_stimulus;
 		input  [7:0]LLR_new,PLR_new,ULR_new,CCR_new;
-        //input  [7:0]PLR_new,ULR_new,LLR_new,CCR_new;
+    //   input  [7:0]PLR_new,ULR_new,LLR_new,CCR_new;
 
 		begin
 				//~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -258,37 +285,46 @@ endtask
 task task_middle_values;
 begin
 
+`ifdef CNCS
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      NCS while counting   
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
    
     			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");      // calling stimulus task 
 wait(cout_checker_out==15) @(negedge clk)ncs_in=1;
-#5
+//#5
+`endif		
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      WRITING while counting   
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef CWRITE
     			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(cout_checker_out==8)  @(negedge clk) nwr_in=0; {a1,a0}=0;  reg_design_din=100; // plr
 					@(negedge clk)  {a1,a0}=1; reg_design_din=150; //ulr
 					@(negedge clk)  {a1,a0}=2; reg_design_din=0; // llr
 					@(negedge clk)  {a1,a0}=3; reg_design_din=5; //ccr
+`endif		
  //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      READING while counting   
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef CREAD
     			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(cout_checker_out==5)   nrd_in=0; {a1,a0}=1;  // reading plr 
 					@(negedge clk)  {a1,a0}=1;  // reading ulr
 					@(negedge clk)  {a1,a0}=2;  // reading llr
 					@(negedge clk)  {a1,a0}=3;  // reading ccr
+`endif		
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      RESET while counting   
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef CRESET
    			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(cout_checker_out==15)   reset_in=0;
+`endif		
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      START while counting   
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef CSTART
   			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(cout_checker_out==14)  @(negedge clk) start_in=1; reset_in=1;
                       @(negedge clk) start_in=0;
@@ -303,22 +339,28 @@ wait(cout_checker_out==15) @(negedge clk)ncs_in=1;
                       @(posedge clk) start_in=1;
 					  @(posedge clk)  start_in=0;
 #100
+`endif		
 
   //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      START pulse when END CYCLE == 1    
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
+`ifdef ECS
+				task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(ec_checker_out==1 )  #1 start_in=1;
 #2 start_in=0;
 #100
+`endif		
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      RESET when END CYCLE == 1    
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef ECRESET
   			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(ec_checker_out==1 || err_checker_out==1)  #1 reset_in=0;
+`endif		
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      READING when END CYCLE == 1    
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef ECREAD
     			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(ec_checker_out==1 || err_checker_out==1)   nrd_in=0; {a1,a0}=1; 
 
@@ -330,20 +372,25 @@ wait(cout_checker_out==15) @(negedge clk)ncs_in=1;
     			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(ec_checker_out==1 || err_checker_out==1)   nrd_in=0; {a1,a0}=0;  
 
+`endif		
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      WRITING when END CYCLE == 1    
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef ECWRITE
     			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(ec_checker_out==1 || err_checker_out==1)   nwr_in=0; {a1,a0}=1;  reg_design_din=100; //ulr
                    @(negedge clk) {a1,a0}=2;  reg_design_din=10; // llr
                    @(negedge clk)  {a1,a0}=3;  reg_design_din=5; //ccr
                    @(negedge clk)  {a1,a0}=0;  reg_design_din=50; //  plr
 
+`endif		
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 //                      starting while error 
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+`ifdef ERWRITE
     			    task_stimulus(10,15,5,2); $display("llr<plr<ulr");
                     wait(ec_checker_out==1 || err_checker_out==1)   nwr_in=0; {a1,a0}=1;  reg_design_din=100;
+`endif		
 end
 endtask
 //~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~`

@@ -51,6 +51,14 @@ always@(posedge clk)
 											begin //{ 3
 																	if(nwr==0)
 																		begin //{ // writing start 4
+																		$display(" $ display >>>>>> PLR=%0d ULR=%0d LLR=%0d= CCR=%0d ",PLR,ULR,LLR,CCR);
+																		$strobe("$strobe >>>>> PLR=%0d ULR=%0d LLR=%0d= CCR=%0d ",PLR,ULR,LLR,CCR);
+																		$monitor("$monitor >>>> PLR=%0d ULR=%0d LLR=%0d= CCR=%0d ",PLR,ULR,LLR,CCR);
+
+
+
+
+
 																		case({A1,A0})
                                   					     				2'b00: begin 
 																					if(plr_flag==0)
